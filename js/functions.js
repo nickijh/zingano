@@ -1,11 +1,42 @@
-$(document).foundation('reveal', {
-    animation: 'fade',
-    animationspeed: 200
-});
-
-var pathRoot = window.location.protocol + '//' + window.location.hostname + window.location.pathname;
+var pathRoot = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':'+window.location.port : '') + window.location.pathname;
 var titleRoot = document.title;
+var body = document.body, html = document.documentElement;
+var docHeight = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight );
 var current = '';
+var swapped = false;
+var galleriesLoaded = [];
+var adsloaded = [];
+/* THIS IS CONFIG DATA SPECIFIC TO SITE */
+var showAds = true; //show slide-up leaderboards at bottom
+var slideAds = 3; //number of times to slide up a leaderboard
+var titleFade = true; //whether to fade the Denver Post logo in the top-bar to show the "DP" and a text title
+//var pages = ['#titlepage','#part1','#photos','#part2']; //div/section IDs that should trigger a page view and title change
+var pages = [];
+$('.omnitrig').each(function(i,e) { pages.push('#'+$(e).attr('id')) });
+var galleries = [];
+$('.centergallery').each(function(i,e) { galleries.push('#'+$(e).attr('id')) }); //div/section IDs of galleries to instantiate (must be a div like #photos and have a child, the gallery itself, with the same ID plus 'gallery' -- i.e. #photosgallery)
+
+function revealSocial(type,link,title,image,desc,twvia,twrel) {
+    title = typeof title !== 'undefined' ? title : false;
+    image = typeof image !== 'undefined' ? image : false;
+    desc = typeof desc !== 'undefined' ? desc : false;
+    twvia = typeof twvia !== 'undefined' ? twvia : false;
+    twrel = typeof twrel !== 'undefined' ? twrel : false;
+    //type can be twitter, facebook or gplus
+    var srcurl = '';
+    if (type == 'twitter') {
+        srcurl = 'http://twitter.com/share?text=' + title + '&url=' + link + '&via=' + twvia + '&related=' + twrel;
+    } else if (type == 'facebook') {
+        srcurl = 'http://www.facebook.com/sharer/sharer.php?s=100&p[url]=' + link + '&p[images][0]=' + image + '&p[title]=' + encodeURIComponent(title) + '&p[summary]=' + encodeURIComponent(desc);
+    } else if (type == 'gplus') {
+        srcurl = 'https://plus.google.com/share?url=' + link;
+    }
+    console.log(srcurl);
+    if (srcurl.length > 1) {
+        window.open(srcurl, type, 'left=60,top=60,width=500,height=500,toolbar=1,resizable=1').focus();
+    }
+    return false;
+}
 
 function load_omniture() {
         var omni = $('#omniture').html();
@@ -18,23 +49,50 @@ function build_url(path) {
 function rewrite_url(path, new_title) {
         var url = build_url(path);
         current = path;
-        document.title = (new_title === 'root' ) ? titleRoot : new_title + ' - ' + titleRoot;
+        document.title = (typeof new_title == 'undefined' || new_title.length < 1 ) ? titleRoot : new_title + ' - ' + titleRoot;
         window.history.replaceState('', new_title, url);
 }
 
+$(document).foundation('reveal', {
+    animation: 'fade',
+    animationspeed: 200
+});
 function revealCredits() {
     $('#credits').foundation('reveal', 'open');
 }
-
+function revealSlides(galleries) {
+    for (key in galleries) {
+        if (galleriesLoaded.indexOf(galleries[key]) == -1) {
+            $(galleries[key]).find('img').unveil();
+            $(galleries[key]).slick({
+                centerMode: true,
+                centerPadding: '15%',
+                slidesToShow: 1,
+                prevArrow: '<button type="button" class="slick-prev"><span>&lt;</span></button>',
+                nextArrow: '<button type="button" class="slick-next"><span>&gt;</span></button>',
+                responsive: [{
+                    breakpoint: 800,
+                    settings: {
+                        arrows: true,
+                        centerMode: true,
+                        centerPadding: '8%',
+                        slidesToShow: 1
+                    }
+                }]
+            });
+            galleriesLoaded.push(galleries[key]);
+        }
+    }
+}
 function checkHash() {
     if (window.location.hash) {
-       var hash = window.location.hash;
-       hash = (hash == '#charlotteswebvideo') ? '#charlottesweb' : hash;
-       if ($(hash).hasClass('hide')) {
+        revealSlides(galleries);
+        var hash = window.location.hash;
+        if ($(hash).hasClass('hide')) {
             toggleSidebar(hash,hash + 'link');
-       } else {
+        } else {
             scrollDownTo(hash);
-       }
+        }
     }
 }
 
@@ -43,6 +101,7 @@ function scrollDownTo(whereToScroll, scrollOffset) {
     $('html,body').animate({
         scrollTop: ($(whereToScroll).offset().top - scrollOffset)
     }, 300);
+    return false;
 }
 
 function toggleSidebar(toShow,toHide) {
@@ -79,12 +138,15 @@ function isVisible(element) {
 }
 
 function isElementInViewport(el) {
-    var rect = document.getElementById(el).getBoundingClientRect();
-
-    return rect.bottom > 0 &&
-        rect.right > 0 &&
-        rect.left < (window.innerWidth || document. documentElement.clientWidth) /*or $(window).width() */ &&
-        rect.top < (window.innerHeight || document. documentElement.clientHeight) /*or $(window).height() */;
+    el = el.toString().replace('#','');
+    if (document.getElementById(el) != null) {
+        var rect = document.getElementById(el).getBoundingClientRect();
+        var half = window.innerHeight / 2;
+        var whole = window.innerHeight;
+        return ( (rect.top > 0 && rect.top < half) || (rect.bottom < whole && rect.bottom > half) || (rect.top < 0 && rect.bottom > whole) );
+    } else {
+        return;
+    }
 }
 
 $('.top-top').click(function(evt) {
@@ -100,9 +162,6 @@ $('.vid-embed').on("mouseleave", function() {
     $(this).find('.playtext').fadeTo(300, 0);
 });
 
-var moreAd = true;
-var titleFade = true;
-
 function fadeNavBar(reverse) {
     if (reverse) {
         $('#name1').animate({opacity:1},500);
@@ -115,16 +174,24 @@ function fadeNavBar(reverse) {
     }
 }
 
+function checkFade() {
+    if ( !($(window).scrollTop() < window.innerHeight) && titleFade ) {
+        fadeNavBar(false);
+    } else if ( ($(window).scrollTop() < window.innerHeight) && !titleFade) {
+        fadeNavBar(true);
+    }
+}
+
 function hideAdManual() {
     $('#adwrapper').fadeOut(300);
     $('#adwrapper a.boxclose').css('display', 'none');
     $('#footer-bar').delay(150).animate({marginBottom:'0'},300);
     $('#adframewrapper').html('');
-    moreAd = false;
+    swapped = false;
 }
 
 $(document).keyup(function(e) {
-    if (!moreAd && e.keyCode == 27) {
+    if (swapped && e.keyCode == 27) {
         hideAdManual();
     }    
 });
@@ -144,141 +211,87 @@ function getAdSize() {
 
 function showAd() {
     var adSize = getAdSize();
-    if (moreAd && adSize) {
+    if (adSize) {
         $('#adframewrapper').html('<iframe src="' + pathRoot + 'ad.html?' + adSize[0] + '" seamless height="' + adSize[2] + '" width="' + adSize[1] + '" frameborder="0"></iframe>');
         $('#adwrapper').fadeIn(400);
         $('a.boxclose').fadeIn(400);
         var adH = $('#adwrapper').height();
         $('#footer-bar').css('margin-bottom',adH);
-        moreAd = false;
+        swapped = true;
+    }
+}
+
+function swapAd() {
+    if (swapped) {
+        hideAdManual();
+    }
+    if (!swapped) {
+        showAd();
     }
 }
 
 function getAdTimes(numAds) {
     var adReturns = [];
-    var docHeight = $(document).height();
     var chunkHeight = docHeight / numAds;
-    var innerHeight = (window.innerHeight * 2);
+    var chunkHalf = chunkHeight / 2;
     for (i=1;i<=numAds;i++) {
-        adReturns.push( Math.round( innerHeight + (chunkHeight * i) ) );
+        adReturns.push( Math.round( chunkHalf + (chunkHeight * i) ) );
     }
     return adReturns;
 }
 
-var adTimes = getAdTimes(3);
+function checkAdPos() {
+    if (showAds) {
+        var topNow = $(window).scrollTop();
+        if (!swapped) {
+            var adTimes = getAdTimes(slideAds);
+            for (var i = 0; i < adTimes.length; i++) {
+                if (!adsloaded[i] && topNow > adTimes[i] && topNow < (typeof adTimes[(i+1)] !== 'undefined' ? adTimes[(i+1)] : docHeight)) {
+                    swapAd();
+                    adsloaded[i] = true;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function checkPageState(pages) {
+    for (key in pages) {
+        if ($(window).scrollTop() < 100) {
+            rewrite_url('','');
+            break;
+        }
+        var currentpage = pages[key];
+        var next = (pages[parseInt(key) + 1]) ? pages[parseInt(key) + 1] : currentpage;
+        var prev = (pages[parseInt(key) - 1]) ? pages[parseInt(key) - 1] : currentpage;
+        if (isElementInViewport(currentpage) && currentpage != current) {
+            var triggerDiv = $(currentpage);
+            rewrite_url(currentpage.toString(),$(triggerDiv).data('omniTitle'));
+            if ($(triggerDiv).hasClass('omnitrig')) {
+                load_omniture();
+                $(triggerDiv).removeClass('omnitrig');
+            }
+        }
+    }
+}
 
 $('.chart-late').find('img').unveil(300);
 
-$('#charlotteswebphotos').find('img').unveil(300, function() {
-    $('#charlotteswebphotos.centergallery').slick({
-        centerMode: true,
-        centerPadding: '15%',
-        slidesToShow: 1,
-        prevArrow: '<button type="button" class="slick-prev"><span>&lt;</span></button>',
-        nextArrow: '<button type="button" class="slick-next"><span>&gt;</span></button>',
-        responsive: [{
-            breakpoint: 800,
-            settings: {
-                arrows: true,
-                centerMode: true,
-                centerPadding: '8%',
-                slidesToShow: 1
-            }
-        }]
-    });
-});
-$('#prestonphotos').find('img').unveil(300, function() {
-    $('#prestonphotos.centergallery').slick({
-        centerMode: true,
-        centerPadding: '15%',
-        slidesToShow: 1,
-        prevArrow: '<button type="button" class="slick-prev"><span>&lt;</span></button>',
-        nextArrow: '<button type="button" class="slick-next"><span>&gt;</span></button>',
-        responsive: [{
-            breakpoint: 801,
-            settings: {
-                arrows: true,
-                centerMode: true,
-                centerPadding: '8%',
-                slidesToShow: 1
-            }
-        }]
-    });
-});
-$('#otherfamilies').find('img').unveil(300, function() {
-    $('#otherfamilies.centergallery').slick({
-        centerMode: true,
-        centerPadding: '15%',
-        slidesToShow: 1,
-        prevArrow: '<button type="button" class="slick-prev"><span>&lt;</span></button>',
-        nextArrow: '<button type="button" class="slick-next"><span>&gt;</span></button>',
-        responsive: [{
-            breakpoint: 801,
-            settings: {
-                arrows: true,
-                centerMode: true,
-                centerPadding: '8%',
-                slidesToShow: 1
-            }
-        }]
-    });
-});
-
 $(document).ready(function() {
     checkHash();
-    if ( !isElementInViewport('part1intro') && titleFade ) {
-        fadeNavBar(false);
-    }
-    if ( $(window).scrollTop() > adTimes[0] ) {
-        if (moreAd) {
-            showAd();
-        }
-    }
+    checkAdPos();
 });
 
+var didScroll = false;
 $(window).scroll(function() {
-    for (var i = 1; i < adTimes.length; i++) {
-        if (adTimes[i] > ($(window).scrollTop() - 35) && adTimes[i] < ($(window).scrollTop() + 35)) {
-            hideAdManual();
-            moreAd = true;
-        }
-    }
-    if ($(window).scrollTop() > adTimes[0] ) {
-        if (moreAd) {
-            showAd();
-        }
-    }
-    if ( !isElementInViewport('part1intro') && titleFade ) {
-        fadeNavBar(false);
-    } else if (isElementInViewport('part1intro') && !titleFade) {
-        fadeNavBar(true);
-    }
-    if (isElementInViewport('part1intro') && current != '') {
-        var triggerDiv = $('#part1intro');
-        rewrite_url($(triggerDiv).data('omniUrl'),$(triggerDiv).data('omniTitle'));
-    }
-    if (isElementInViewport('part1') && !isElementInViewport('part1intro') & !isElementInViewport('part2') && current != '#part1') {
-        var triggerDiv = $('#part1');
-        rewrite_url($(triggerDiv).data('omniUrl'),$(triggerDiv).data('omniTitle'));
-        if ($(triggerDiv).hasClass('omnitrig')) {
-            load_omniture();
-            $(triggerDiv).removeClass('omnitrig');
-        }
-    }
-    if (isElementInViewport('part2') && !isElementInViewport('part1') && !isElementInViewport('part3') && current != '#part2') {
-        var triggerDiv = $('#part2');
-        rewrite_url($(triggerDiv).data('omniUrl'),$(triggerDiv).data('omniTitle'));
-        if ($(triggerDiv).hasClass('omnitrig')) {
-            load_omniture();
-            $(triggerDiv).removeClass('omnitrig');
-        }
-    }
-    if (isElementInViewport('part3') && !isElementInViewport('part2') && current != '#part3') {
-        var triggerDiv = $('#part3');
-        rewrite_url($(triggerDiv).data('omniUrl'),$(triggerDiv).data('omniTitle'));
-        if ($(triggerDiv).hasClass('omnitrig')) {
-            load_omniture();
-            $(triggerDiv).removeClass('omnitrig');
-        }
-    }
+    didScroll = true;    
 });
+setInterval(function() {
+    if (didScroll) {
+        checkFade();
+        checkPageState(pages);
+        revealSlides(galleries);
+        checkAdPos();
+    }
+},250);
