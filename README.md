@@ -289,7 +289,7 @@ Sets of two cube ads can be used between major sections with markup like this:
 			<div class="large-6 medium-6 hide-for-small columns">
 				<div id="div_Cube6" class="adcube-wrap">
 					<script type='text/javascript'>
-					if ( window.innerwidth >= 660 ) {
+					if ( window.innerWidth >= 660 ) {
 						googletag.defineSlot('/8013/denverpost.com/Lifestyle/Health/Mental-health', [300,250], 'div_Cube6').addService(googletag.pubads());
 						googletag.pubads().enableSyncRendering();
 						googletag.enableServices();
