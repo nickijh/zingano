@@ -343,7 +343,10 @@ When basing a projct on this template, you'll need to go through and set up the 
 * Chartbeat (last thing inside `body`)
 * The content (duh)
 * Sharing buttons (in the top-bar and the footer)
-
+* Check copyright year in footer
+* All images working?
+* Open JS console and look for errors
+* Update Credits!
 
 ### Codebase resources
 * [ZURB Foundation](http://foundation.zurb.com)
