@@ -38,31 +38,31 @@ Used to build a popup share window for different social networks. How your HTML 
 
 Each network works a little differently in terms of what it uses to build the intent request. Explanation of config variables:
 
-* ###### type
+* **_type_**
   * 'twitter','facebook', or 'gplus' currently supported.
   * Required
-* ###### link
+* **_link_**
   * The link to share on social -- preferably a custom bit.ly (dpo.st) shortlink.
   * Required
-* ###### title
+* **_title_**
   * The title to share -- this is the tweet text for Twitter, or article title for Facebook.
   * Optional
   * Not used by gplus intent
-* ###### image
+* **_image_**
   * Image to share with Facebook post -- usually the same as the share image for Twitter Card and OpenGraph meta tags.
   * Optional
   * Not used by twitter or gplus intents
-* ###### desc
+* **_desc_**
   * Description to share on Facebook -- usually the same as the og:description.
   * Optional
   * Not used by twitter or gplus intents
-* ###### twvia
+* **_twvia_**
   * Twitter account to add in tweet body -- no '@' required.
   * Usually `denverpost` or another institutional account
   * Appended to end in format `[tweet text] [link] via [twvia]`
   * Optional
   * Not used by facebook or gplus intents
-* ###### twvia
+* **_twvia_**
   * Twitter account to recommend after tweet sent -- no '@' required.
   * Usually the author, photographer or other principal in the project.
   * Usually
@@ -77,13 +77,13 @@ Each network works a little differently in terms of what it uses to build the in
 
 Photos can be inset left or right, centered int he column, break out into the full document width, fill the width of the viewport, or double up across the entire viewport with several different classes.
 
-##### `class="centerphoto"`
+##### centerphoto
 
-Removes padding so image fills entire parent column.
+`class="centerphoto"` removes padding so image fills entire parent column.
 
-##### `class="solo"`
+##### solo
 
-Forces column to full document width (large-12) and removes padding. Use in a standalone row
+`class="solo"` forces column to full document width (large-12) and removes padding. Use in a standalone row
 
 ##### Twin Photo
 
