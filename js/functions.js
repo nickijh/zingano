@@ -20,8 +20,8 @@ function revealSocial(type,link,title,image,desc,twvia,twrel) {
     title = typeof title !== 'undefined' ? title : false;
     image = typeof image !== 'undefined' ? image : false;
     desc = typeof desc !== 'undefined' ? desc : false;
-    twvia = typeof twvia !== 'undefined' ? twvia : false;
-    twrel = typeof twrel !== 'undefined' ? twrel : false;
+    twvia = typeof twvia !== 'undefined' ? twvia.toString().replace('@','') : false;
+    twrel = typeof twrel !== 'undefined' ? twrel.toString().replace('@','') : false;
     //type can be twitter, facebook or gplus
     var srcurl = '';
     if (type == 'twitter') {
@@ -107,6 +107,7 @@ function scrollDownTo(whereToScroll, scrollOffset) {
 function toggleSidebar(toShow,toHide) {
     $(toShow).removeClass('hide');
     $(toHide).addClass('hide');
+    rewrite_url(toShow);
     scrollDownTo(toShow);
 }
 
