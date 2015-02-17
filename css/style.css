@@ -59,7 +59,7 @@ body {
     margin-bottom:1em;
 }
 #part1intro {
-    background-image:url('http://placehold.it/1800x1301&text=Big+Leader+Photo');
+    background-image:url('./img/zingano-header.jpg');
 }
 #part2intro {
     background-image:url('../img/opener-part2.jpg');
