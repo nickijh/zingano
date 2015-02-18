@@ -418,14 +418,14 @@ div.title.lowertitle {
     margin-top: 4em;
 }
 div.title h2 {
-    margin:30% 0 4%;
+    margin:30% 0 10%;
     text-align: center;
     font-family:'Noticia Text', Helvetica, Arial, sans-serif !important;
     font-weight:600;
-    font-size:5.4em;
+    font-size:5.2em;
     letter-spacing:0px;
     line-height:1;
-    padding-bottom:1em;
+    padding-bottom:2em;
     border-top:4px solid #000;
     border-bottom:4px solid #000;
     border-left:4px solid #000;
@@ -439,7 +439,7 @@ div.title h1 {
     text-align: center;
     font-family:'PT Sans Narrow', Helvetica, Arial, sans-serif !important;
     font-size:2.2em;
-    font-w-1eight:400;
+    font-weight:300;
     line-height:1.2;
     color:rgba(34,34,34,1);
     display:block;
@@ -450,7 +450,7 @@ div.title.lowertitle h1 {
     margin:1em auto 2em;
     border-top:1px solid #aaa;
     padding-top:1em;
-    width:80%;
+    width:90%;
 }
 h1, h2, h3, h4 {
   	font-family:'PT Sans Narrow', Helvetica, Arial, sans-serif !important;
@@ -528,11 +528,11 @@ p, .reveal-modal li {
 }
 h3.subheading {
     font-family:'Noticia Text', Georgia, Times, serif;
-    font-size:2.2em;
+    font-size:2.8em;
     font-weight:700;
     display:block;
     text-align:center;
-    margin:3.5em auto 1.5em;
+    margin:2.5em auto 1.5em;
     padding:.5em 0;
     width:70%;
     border-bottom:1px solid rgba(0,0,0,.3);
